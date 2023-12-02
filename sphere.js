@@ -25,9 +25,7 @@ scene.add(sphere);
 
 // * Window Postion Tracker
 let x = window.screenX;
-// console.log(x);
 let y = window.screenY;
-// console.log(y);
 
 function trackWindowPosition() {
     if (x !== window.screenX || y !== window.screenY) {
