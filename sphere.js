@@ -25,7 +25,7 @@ document.body.appendChild(renderer.domElement);
 // Loading textures
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 const envMap = (function(){ // Environment Map textures
-    const path = 'Textures/Yokohama3/';
+    const path = 'Textures/Yokohama3/'; // textures made by Humus (https://www.humus.name/index.php?page=Textures)
     const format = '.jpg';
     const urls = [
         path + 'posx' + format, path + 'negx' + format,
