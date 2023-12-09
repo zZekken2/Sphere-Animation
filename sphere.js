@@ -11,7 +11,7 @@ import * as THREE from 'three';
 const scene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.OrthographicCamera(window.innerWidth / -3, window.innerWidth / 3, window.innerHeight / -3, window.innerHeight / 3, 0.1, 1000); // Since the camera is orthographic, the sphere will not be distorted when going further from the center of the scene
+const camera = new THREE.OrthographicCamera(window.innerWidth / -3, window.innerWidth / 3, window.innerHeight / 3, window.innerHeight / -3, 0.1, 1000); // Since the camera is orthographic, the sphere will not be distorted when going further from the center of the scene
 let cameraZ = 100;
 camera.position.set(0, 0, cameraZ); // Set the camera's position
 camera.lookAt(scene.position); // Set the camera's target to the center of the scene
@@ -25,7 +25,7 @@ document.body.appendChild(renderer.domElement);
 // Loading textures
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 const envMap = (function(){ // Environment Map textures
-    const path = 'Textures/Yokohama3/'; // textures made by Humus (https://www.humus.name/index.php?page=Textures)
+    const path = '../Textures/Yokohama3/'; // textures made by Humus (https://www.humus.name/index.php?page=Textures)
     const format = '.jpg';
     const urls = [
         path + 'posx' + format, path + 'negx' + format,
@@ -136,7 +136,7 @@ function windowToSphereCoords(){
 function newPosCalc(milliseconds){
     for(const s of sphereCoords){
         const data = distanceAndAngle(s.x, s.y, nextSphereCoords.x, nextSphereCoords.y);
-        const velocity = data.distance / 0.3; // The higher the constant, the slower the sphere moves
+        const velocity = data.distance / 0.8; // The higher the constant, the slower the sphere moves
         const newPosVector = new Vector(velocity, data.angle);
         const elapsedTime = milliseconds / 1000; // convert to seconds
 
@@ -175,7 +175,7 @@ function Vector(magnitude, angle){
     const angleRadians = (angle * Math.PI) / 180;
 
     this.magnitudeX = magnitude * Math.cos(angleRadians);
-    this.magnitudeY = magnitude * Math.sin(angleRadians);
+    this.magnitudeY = - magnitude * Math.sin(angleRadians); // The minus sign is needed to make the sphere move in the right direction
 }
 
 window.requestAnimationFrame(animation);
