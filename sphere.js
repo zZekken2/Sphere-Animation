@@ -1,7 +1,7 @@
 
 
-// # Version 0.2.2
-// - Creating smooth movement based on the window position vectors
+// # Version 0.3
+// - Correcting camera distortion
 
 
 // Import Three.js
@@ -11,8 +11,10 @@ import * as THREE from 'three';
 const scene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 150;
+const camera = new THREE.OrthographicCamera(window.innerWidth / -3, window.innerWidth / 3, window.innerHeight / 3, window.innerHeight / -3, 0.1, 1000); // Since the camera is orthographic, the sphere will not be distorted when going further from the center of the scene
+camera.position.set(0, 0, 100); // Set the camera's position
+camera.lookAt(scene.position); // Set the camera's target to the center of the scene
+camera.up.set(0, 1, 0); // Set the camera's up vector
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer();
@@ -20,7 +22,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Create a sphere and add to Scene
-const radius = 25;
+const radius = 75; // Has to be lower than the camera's z position
 const geometry = new THREE.SphereGeometry(radius, 64, 32);
 const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
 const sphere = new THREE.Mesh(geometry, material);
@@ -101,7 +103,7 @@ function windowToSphereCoords(){
 function newPosCalc(milliseconds){
     for(const s of sphereCoords){
         const data = distanceAndAngle(s.x, s.y, nextSphereCoords.x, nextSphereCoords.y);
-         const velocity = data.distance / 1; // Original value: 0.5 but I liked 0.4 better
+        const velocity = data.distance / 0.3; // The higher the constant, the slower the sphere moves
         const newPosVector = new Vector(velocity, data.angle);
         const elapsedTime = milliseconds / 1000; // convert to seconds
 
@@ -109,7 +111,6 @@ function newPosCalc(milliseconds){
         s.y += newPosVector.magnitudeY * elapsedTime;
     }
 }
-
 
 /*
     Moves the sphere to the specified coordinates.
