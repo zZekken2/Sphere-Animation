@@ -1,7 +1,7 @@
 
 
-// # Version 0.3
-// - Correcting camera distortion
+// # Version 0.4
+// - Adding a little bit of style to the sphere :D
 
 
 // Import Three.js
@@ -11,24 +11,53 @@ import * as THREE from 'three';
 const scene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.OrthographicCamera(window.innerWidth / -3, window.innerWidth / 3, window.innerHeight / 3, window.innerHeight / -3, 0.1, 1000); // Since the camera is orthographic, the sphere will not be distorted when going further from the center of the scene
-camera.position.set(0, 0, 100); // Set the camera's position
+const camera = new THREE.OrthographicCamera(window.innerWidth / -3, window.innerWidth / 3, window.innerHeight / -3, window.innerHeight / 3, 0.1, 1000); // Since the camera is orthographic, the sphere will not be distorted when going further from the center of the scene
+let cameraZ = 100;
+camera.position.set(0, 0, cameraZ); // Set the camera's position
 camera.lookAt(scene.position); // Set the camera's target to the center of the scene
 camera.up.set(0, 1, 0); // Set the camera's up vector
 
 // Create a renderer
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({antialias: true}); // antialiasing makes the sphere look smoother
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Loading textures
+const cubeTextureLoader = new THREE.CubeTextureLoader();
+const envMap = (function(){ // Environment Map textures
+    const path = 'Textures/Yokohama3/';
+    const format = '.jpg';
+    const urls = [
+        path + 'posx' + format, path + 'negx' + format,
+        path + 'posy' + format, path + 'negy' + format,
+        path + 'posz' + format, path + 'negz' + format
+    ];
+
+    const reflectionCube = cubeTextureLoader.load(urls);
+    const refractionCube = cubeTextureLoader.load(urls);
+    refractionCube.mapping = THREE.CubeRefractionMapping;
+
+    return{
+        reflection: reflectionCube,
+        refraction: refractionCube
+    };
+
+})();
+
 // Create a sphere and add to Scene
-const radius = 75; // Has to be lower than the camera's z position
-const geometry = new THREE.SphereGeometry(radius, 64, 32);
-const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+const radius = cameraZ * 0.7; // Has to be lower than the camera's z position (using 70% of that value)
+const geometry = new THREE.SphereGeometry(radius, 64, 64);
+const material = new THREE.MeshBasicMaterial({
+    color: 0xc617de,
+    wireframe: true,
+    envMap: envMap.reflection, // Using the reflection environment map instead of the refraction one
+    combine: THREE.MultiplyOperation
+});
 const sphere = new THREE.Mesh(geometry, material);
 
 scene.add(sphere);
 
+let rotation = 0.005;
 let lastFrame = 0;
 let winCoords = {
     x: window.screenX,
@@ -54,6 +83,10 @@ let nextSphereCoords = {
 function animation(milliseconds){ // milliseconds is passed automatically by the requestAnimationFrame function
     let elapsed = milliseconds - lastFrame; // elapsed is the time passed since the last frame
     lastFrame = milliseconds;
+
+    sphere.rotation.x += rotation;
+    sphere.rotation.y += rotation;
+    sphere.rotation.z += rotation;
 
     renderFunctions(elapsed);
     renderer.render(scene, camera);
@@ -130,7 +163,7 @@ function distanceAndAngle(x1, y1, x2, y2){
     const y = y2 - y1;
 
     return{
-        distance: Math.sqrt(x * x + y * y) * (radius / 2), // TODO: Find a way to make the sphere move more smoothly (previusly: multiplied by 5)
+        distance: Math.sqrt(x * x + y * y) * (radius / 2),
         angle: Math.atan2(y, x) * 180 / Math.PI
     };
 }
